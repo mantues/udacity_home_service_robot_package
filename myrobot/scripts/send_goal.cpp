@@ -157,12 +157,12 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "send_move_base_goal");
     ros::NodeHandle nnh;
     Command Command;
-    int i = 0;
+    /*int i = 0;
     while(i<1000){
         Command.Publish();
         i=i+1;
         std::cout << i << std::endl;
-    }
+    }*/
     //ros::Subscriber switch_sub;
 
     ros::Subscriber move_base_status_sub;
