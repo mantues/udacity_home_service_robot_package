@@ -162,6 +162,9 @@ include_directories(
 #send goals cpp
 add_executable(send_move_base_goal scripts/send_goal.cpp)
 target_link_libraries(send_move_base_goal ${catkin_LIBRARIES})
+#get_result
+add_executable(get_result scripts/get_result.cpp)
+target_link_libraries(get_result ${catkin_LIBRARIES})
 #spawn marker cpp
 add_executable(spawn_marker scripts/basic_shapes.cpp)
 target_link_libraries(spawn_marker ${catkin_LIBRARIES})

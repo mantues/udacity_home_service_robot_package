@@ -1,32 +1,3 @@
-/*
- * Copyright (c) 2010, Willow Garage, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
- *       contributors may be used to endorse or promote products derived from
- *       this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-
 // %Tag(FULLTEXT)%
 // %Tag(INCLUDES)%
 #include <ros/ros.h>
@@ -34,31 +5,25 @@
 #include <std_msgs/String.h>
 // %EndTag(INCLUDES)%
 
-class Spawn_model {
-public:
-    Spawn_model(visualization_msgs::Marker msg);
-    ~Spawn_model();
-    
+class markerCallBack
+{
 private:
-    ros::Publisher marker_pub;
-    ros::NodeHandle n;
+  ros::NodeHandle nh;
+  ros::Publisher marker_pulisher;
+  ros::Subscriber sub_com;
+
+public:
+  void callback(const std_msgs::String &msg_sub);
+
+  markerCallBack()
+  {
+    sub_com = nh.subscribe("/get_result", 10, &markerCallBack::callback, this);
+    marker_pulisher = nh.advertise<visualization_msgs::Marker>("visualization_marker", 100);
+  }
 };
 
-Spawn_model::Spawn_model(visualization_msgs::Marker msg)
+void markerCallBack::callback(const std_msgs::String &msg_sub)
 {
-    marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 100);
-	marker_pub.publish(msg);
-}
-
-Spawn_model::~Spawn_model(){
- 
-}
-
-void Model(std_msgs::String msg){
-    ros::NodeHandle nh;
-    ros::Rate r(1);
-    ros::Publisher marker_pulisher;
-    marker_pulisher = nh.advertise<visualization_msgs::Marker>("visualization_marker", 100);
     ROS_INFO("SPAWN MARKER!!!!!\n");
     visualization_msgs::Marker marker;
     // Set the frame ID and timestamp.  See the TF tutorials for information on these.
@@ -111,16 +76,16 @@ void Model(std_msgs::String msg){
 // %EndTag(COLOR)%
 
 // %Tag(LIFETIME)%
-    marker.lifetime = ros::Duration();
+    marker.lifetime = ros::Duration(5);
 // %EndTag(LIFETIME)%
 
     // Publish the marker
 // %Tag(PUBLISH)%
     marker_pulisher.publish(marker);
-    Spawn_model spawn_model_ob();
+
     //Spawn_model.Publish(marker);
 // %EndTag(PUBLISH)%
-    r.sleep();
+
 }
 
 
@@ -128,12 +93,8 @@ void Model(std_msgs::String msg){
 int main( int argc, char** argv )
 {
   ros::init(argc, argv, "msgs_spawn_marker");
-  ros::NodeHandle n;
 
-// %EndTag(INIT)%
-  ros::Subscriber status_sub;
-  status_sub = n.subscribe<std_msgs::String>("/get_result", 10, &Model);
-
+  markerCallBack markerballback;
   ros::spin();
   // %EndTag(SLEEP_END)%
 }

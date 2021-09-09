@@ -10,22 +10,37 @@
 int target_pos = 0;
 int robot_state = 0; // 0: idle 1:moving 2:goal
 
-class Goal {
-public:
-    Goal(double px, double py, double pz, double ow);
-    ~Goal();
- 
+class GoalCallBack
+{
 private:
-    ros::Publisher pub;
-    ros::NodeHandle nh;
+  ros::NodeHandle nh;
+  ros::Publisher pub_goal;
+  ros::Subscriber sub_status;
+  ros::Publisher pub_msg;
+
+public:
+  void callback(actionlib_msgs::GoalStatusArray &status);
+  void send_goal(double px, double py, double pz, double ow);
+  void send_msg(void);
+
+  GoalCallBack()
+  {
+    sub_status = nh.subscribe("/move_base/status", 10, &GoalCallBack::callback, this);
+    pub_goal = nh.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1);
+    pub_msg = nh.advertise<std_msgs::String>("/get_result", 1);
+  }
 };
 
-Goal::Goal(double px, double py, double pz, double ow){
-    pub = nh.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1);
- 
-    ros::Rate one_sec(1);
-    one_sec.sleep();
-     
+void GoalCallBack::send_msg(void)
+{
+    ROS_INFO("Get result Message!!!!!\n");
+    std_msgs::String pub_data;
+	pub_data.data = "Target reached!!";
+	pub_msg.publish(pub_data);
+}
+
+
+void GoalCallBack::send_goal(double px, double py, double pz, double ow){
     ros::Time time = ros::Time::now();
     geometry_msgs::PoseStamped goal_point;
  
@@ -36,47 +51,13 @@ Goal::Goal(double px, double py, double pz, double ow){
     goal_point.header.stamp = time;
     goal_point.header.frame_id = "map";
  
-    pub.publish(goal_point);
- 
-}
- 
-Goal::~Goal(){
+    pub_goal.publish(goal_point);
  
 }
 
-class Command {
-public:
-    Command();
-    void Publish(void);
-    ~Command();
-    
-private:
-    ros::Publisher pub_com;
-    ros::NodeHandle n;
-    std_msgs::String pub_msg;
-};
-
-Command::Command()
+void GoalCallBack::callback(actionlib_msgs::GoalStatusArray &status)
 {
-    pub_com = n.advertise<std_msgs::String>("/get_result", 1000);
-	pub_msg.data = "Target reached!!";
-	pub_com.publish(pub_msg);
-}
-void Command::Publish(void)
-{
-	pub_msg.data = "message";
-	pub_com.publish(pub_msg);
-}
-
-
-Command::~Command(){
- 
-}
-
-
-void navStatusCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr &status)
-{
-
+    ROS_INFO("Get Status!!!!!\n");
     int status_id = 0;
     //uint8 PENDING         = 0  
     //uint8 ACTIVE          = 1 
@@ -89,14 +70,13 @@ void navStatusCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr &status)
     //uint8 RECALLED        = 8
     //uint8 LOST            = 9
     
-
-
     if (!status->status_list.empty()){
     actionlib_msgs::GoalStatus goalStatus = status->status_list[0];
     status_id = goalStatus.status;
     }
 
     ROS_INFO("status=%d\n",status_id);
+    ROS_INFO("robot_state=%d\n",robot_state);
     if(status_id==1){
     //myrobot is moving
         ROS_INFO("Target = %d MOVING!!\n",target_pos);
@@ -110,18 +90,16 @@ void navStatusCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr &status)
             if(robot_state!=1){
                 return;
             }
-            robot_state = 2;
-            ROS_INFO("Target = %d Goal reached!!!!!\n",target_pos);
             if(target_pos==1) { // reached target1
-                Command Command;
-                Command.Publish();
+                //pub_com.publish(pub_msg);
                 ROS_INFO("Target reached!!!!!\n");
                 target_pos++;
-                Goal goal_ob(3.16, -4.78, 0.22, 0.97);    // move to goal2
+                GoalCallBack::goalcallback::send_goal(3.16, -4.78, 0.22, 0.97);    // move to goal2
             }
             /*else if(target_pos==2) {    // reached target2
                 target_pos++;
-                Goal goal_ob(2.19, 1.80, 0.97, 0.20);    // send goal
+                //send_goal(2.19, 1.80, 0.97, 0.20);    // send goal
+                GoalCallBack::send_goal(3.66, -4.78, 0.22, 0.97);    // move to goal2
             }
             else if(target_pos==3) {
                 target_pos++;
@@ -148,30 +126,19 @@ void navStatusCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr &status)
         }
 
     }
-
+    
 }
 
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "send_move_base_goal");
-    ros::NodeHandle nnh;
-    Command Command;
-    /*int i = 0;
-    while(i<1000){
-        Command.Publish();
-        i=i+1;
-        std::cout << i << std::endl;
-    }*/
-    //ros::Subscriber switch_sub;
+    GoalCallBack goalcallback;
 
-    ros::Subscriber move_base_status_sub;
-    move_base_status_sub = nnh.subscribe<actionlib_msgs::GoalStatusArray>("/move_base/status", 10, &navStatusCallBack);
+    //ros::Subscriber move_base_status_sub;
     target_pos = 1;
-    Goal goal_ob(-3.5, -4.64, 0.0, 1.0);    // add goal navi
-    //goal_ob(1.13, -0.04, 0, 1.0);    // add goal navi
-    Command.Publish();
-    ros::spin();
+    //send_goal(3.66, -4.78, 0.22, 0.97);    // add goal navi
 
+    ros::spin();
     return 0;
 }
