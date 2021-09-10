@@ -3,6 +3,7 @@
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Float32MultiArray.h>
 // %EndTag(INCLUDES)%
 
 class markerCallBack
@@ -13,18 +14,19 @@ private:
   ros::Subscriber sub_com;
 
 public:
-  void callback(const std_msgs::String &msg_sub);
+  void callback(const std_msgs::Float32MultiArray &msg_sub);
 
   markerCallBack()
   {
-    sub_com = nh.subscribe("/get_result", 10, &markerCallBack::callback, this);
+    sub_com = nh.subscribe("/spawn_marker", 10, &markerCallBack::callback, this);
     marker_pulisher = nh.advertise<visualization_msgs::Marker>("visualization_marker", 100);
   }
 };
 
-void markerCallBack::callback(const std_msgs::String &msg_sub)
+void markerCallBack::callback(const std_msgs::Float32MultiArray &msg_sub)
 {
-    ROS_INFO("SPAWN MARKER!!!!!\n");
+    ROS_INFO("SPAWN [%f, %f, %f]!!!!!\n", msg_sub.data[0], msg_sub.data[1], msg_sub.data[2]);
+    double sx = msg_sub.data[0], sy = msg_sub.data[1], st = msg_sub.data[2];
     visualization_msgs::Marker marker;
     // Set the frame ID and timestamp.  See the TF tutorials for information on these.
     marker.header.frame_id = "/map";
@@ -51,9 +53,9 @@ void markerCallBack::callback(const std_msgs::String &msg_sub)
 
     // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
 // %Tag(POSE)%
-    marker.pose.position.x = 0;
-    marker.pose.position.y = 0;
-    marker.pose.position.z = 0;
+    marker.pose.position.x = sx;
+    marker.pose.position.y = sy;
+    marker.pose.position.z = 0.0;
     marker.pose.orientation.x = 0.0;
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
@@ -76,7 +78,7 @@ void markerCallBack::callback(const std_msgs::String &msg_sub)
 // %EndTag(COLOR)%
 
 // %Tag(LIFETIME)%
-    marker.lifetime = ros::Duration(5);
+    marker.lifetime = ros::Duration(st);
 // %EndTag(LIFETIME)%
 
     // Publish the marker

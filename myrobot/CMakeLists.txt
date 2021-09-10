@@ -212,6 +212,8 @@ target_link_libraries(msgs_spawn_marker ${catkin_LIBRARIES})
    FILES
    $(myrobot)/launch/*.launch
    $(myrobot)/scripts/send_goal.cpp
+   $(myrobot)/scripts/spawn_marker.cpp
+   $(myrobot)/scripts/get_result.cpp
 #   # myfile2
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
  )

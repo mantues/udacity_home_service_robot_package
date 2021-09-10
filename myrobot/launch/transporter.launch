@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- get result -->
+  <node pkg="myrobot" name="get_result" type="get_result" output="screen"/>
+  <!-- spawn_marker -->
+  <node pkg="myrobot" name="spawn_marker" type="msgs_spawn_marker" output="screen"/>
+  <!-- send_goal -->
+  <node pkg="myrobot" name="send_goal" type="send_move_base_goal" output="screen"/>
+
+</launch>
