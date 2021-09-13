@@ -41,9 +41,9 @@ class navCallBack
 void navCallBack::callback(const move_base_msgs::MoveBaseActionResult &msg_sub)
 {
     ROS_INFO("Get result Message!!!!!\n");
-    std_msgs::String pub_msg;
-  	pub_msg.data = "Target reached!!";
-	  pub_com.publish(pub_msg);
+    std_msgs::String msg;
+  	msg.data = "Target reached!!";
+	  pub_com.publish(msg);
 
     if (position==0) {
         double sx = 3.16, sy = -4.78, st = 5.0;
