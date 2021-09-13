@@ -19,6 +19,7 @@ class navCallBack
   private:
       // Publisher and Subscriber
       ros::NodeHandle nh;
+      ros::Publisher pub_msg;
       ros::Publisher pub_com;
       ros::Subscriber sub_com;
 
