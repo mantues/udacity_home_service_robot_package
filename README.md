@@ -35,6 +35,10 @@ bash test_sram.sh
 ```
 bash test_navigation.sh
 ```
+## To spawn cube in Rviz(ROS-kinetic-package)
+```
+bash add_markers.sh
+```
 ---
 ## Home robot service package(ROS-kinetic-package)
 
