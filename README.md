@@ -1,5 +1,10 @@
 # udacity_map_my_world_package
-udacity robotics nanodegree
+Final project for Udacity's Robotics Software Engineer Nanodegree Program
+#### Goals
+
+* Use the ROS and manually command the robot using the 2D Navigation move_base and navigation stack to move to 2 different desired positions and orientations.
+* Create a pick_objects(cube) node that commands the robot to move to the desired pickup point and drop off point.
+
 
 #### Requirements
 ```
